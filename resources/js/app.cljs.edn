@@ -1,0 +1,3 @@
+{:require  [geometer.app]
+;; :init-fns [geometer.app/init]
+ :compiler-options {:asset-path "js/app.out"}}

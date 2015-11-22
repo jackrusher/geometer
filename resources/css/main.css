@@ -1,0 +1,11 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #fefefe;
+    color: #444;
+}
+
+#app {
+    margin: auto;
+    padding: 10%;
+}
