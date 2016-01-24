@@ -1,0 +1,26 @@
+(ns geometer.shapes
+  (:require [thi.ng.geom.core       :as g]
+            [thi.ng.geom.core.utils :as gu]
+            [thi.ng.geom.circle     :refer [circle]]
+            [thi.ng.geom.cuboid     :refer [cuboid]]
+            [thi.ng.geom.sphere     :as s]
+            [thi.ng.math.core       :as m]))
+
+(defn cube
+  "Return the vertices with which to draw a tesselated cube."
+  []
+  (-> (cuboid 25)   ;; a cuboid of 25 units size
+      (g/as-mesh))) ;; as a mesh
+
+(defn disc
+  "Return the vertices with which to draw a tesselated disc."
+  []
+  (-> (circle 16)    ;; a 2D circle
+      (g/extrude {}) ;; extruded into a 3D disc
+      (g/as-mesh)))  ;; as a mesh
+
+(defn sphere
+  "Return the vertices with which to draw a tesselated sphere."
+  []
+  (-> (s/sphere 16) ;; abstract sphere of 16 units
+      (g/as-mesh))) ;; converted to a mesh

@@ -1,11 +1,86 @@
+.opentype {
+    -webkit-font-feature-settings: "liga", "dlig";
+    -moz-font-feature-settings: "liga=1, dlig=1";
+    -moz-font-feature-settings: "liga", "dlig";
+    -ms-font-feature-settings: "liga", "dlig";
+    -o-font-feature-settings: "liga", "dlig";
+    font-feature-settings: "liga", "dlig";
+}
+
 body {
     margin: 0;
     padding: 0;
-    background-color: #fefefe;
-    color: #444;
+    width: 100vw;
+    height: 100vh;
+    overflow-x: hidden;
+    background: linear-gradient(35deg, rgb(189,37,72), rgb(67,86,160));
+    -webkit-font-smoothing: antialiased;
+    font-family: 'Lekton', sans-serif;
+}
+        
+#controls {
+    position: absolute;
+    top: 1em;
+    left: 1em;
+    max-width: 90vw;
+    padding: 1em;
+    background: #181818;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    opacity: 0.6;
+    color: white;
 }
 
-#app {
-    margin: auto;
-    padding: 10%;
+
+#controls dt {
+    margin-top: 0.5em;
+    font-weight: bold;
+}
+
+#controls dd {
+    margin-top: 0.5em;
+    margin-left: 0;
+    padding: 0.25em;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    transition: color background-color 0.2s linear;
+    color: white;
+    background-color: transparent;
+}
+
+#controls dd:hover {
+    transition: color background-color 0.2s linear;
+    color: #181818;
+    background-color: white;
+    /* background-color: rgb(16,157,76); */
+}
+
+#main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+}
+
+#spinner {
+    position: absolute;
+    top: 35%;
+    left: 45%;
+    height: 2em;
+    width: 9em;
+    z-index: 1;
+    padding: 1em;
+    background: #181818;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    opacity: 0.6;
+    color: white;
+}
+.invisible {
+    display: none;
+}
+.visible {
+    display: block;
 }
