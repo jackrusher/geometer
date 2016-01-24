@@ -1,10 +1,8 @@
 (ns geometer.shapes
   (:require [thi.ng.geom.core       :as g]
-            [thi.ng.geom.core.utils :as gu]
             [thi.ng.geom.circle     :refer [circle]]
             [thi.ng.geom.cuboid     :refer [cuboid]]
-            [thi.ng.geom.sphere     :as s]
-            [thi.ng.math.core       :as m]))
+            [thi.ng.geom.sphere     :as s]))
 
 (defn cube
   "Return the vertices with which to draw a tesselated cube."
@@ -23,4 +21,4 @@
   "Return the vertices with which to draw a tesselated sphere."
   []
   (-> (s/sphere 16) ;; abstract sphere of 16 units
-      (g/as-mesh))) ;; converted to a mesh
+      (g/as-mesh))) ;; as a mesh

@@ -6,13 +6,9 @@
                  [adzerk/boot-reload        "0.4.1"      :scope "test"]
                  [pandeiro/boot-http        "0.6.3"      :scope "test"]
                  [org.clojure/clojurescript "1.7.122"]
-                 [thi.ng/typedarrays "0.1.2"]
-                 [thi.ng/common "0.3.1"]
                  [thi.ng/geom "0.0.908"]
-                 [thi.ng/geom-core "0.0.908"]
-                 [thi.ng/geom-webgl "0.0.908"]
-                 [thi.ng/color "1.0.0"]
-                 [thi.ng/morphogen "0.1.1"]])
+;;                 [thi.ng/morphogen "0.1.1"]
+                 ])
 
 (require
  '[adzerk.boot-cljs      :refer [cljs]]

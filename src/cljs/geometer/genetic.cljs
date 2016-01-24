@@ -1,9 +1,10 @@
 (ns geometer.genetic
-  (:require [thi.ng.math.core        :as m]
-            [thi.ng.geom.core        :as g]
+  (:require [thi.ng.geom.core        :as g]
+            [thi.ng.geom.core.utils  :as gu]
             [thi.ng.geom.core.vector :refer [vec3]]
             [thi.ng.geom.gmesh       :as gm]
-            [geometer.lsystem        :refer [grow execute-ops]]
+            [thi.ng.math.core        :as m]
+            [geometer.lsystem        :refer [grow execute-ops build-lsystem]]
             [clojure.data            :refer [diff]]))
 
 (defn random-gene
@@ -11,22 +12,47 @@
   []
   (rand-nth [\F \F \F \C \+ \- \& \^ \\ \/ \| \[ \]]))
 
-(defn evolve-mesh
+(def toroid
+  (-> (build-lsystem (take 48 (cycle [\F \+])) #(m/radians 15) #(identity 4))
+      (g/vertices)))
+
+(defn mesh-distance
+  "An extremely primitive function to calculate the difference between mesh vertices `old` and `new`. Used as a fitness function for a genetic algorithm that follows."
+  [old new]
+  (apply + (map #(apply min (map (partial g/dist %) old)) new)))
+
+(defn novelty-search
   "Use novelty search to produce the most 'interesting' mesh possible given these constraints."
   []
-  (let [generation-size 5
-        genes-per-generation 25]
-    (loop [generations 5
+  (let [generation-size 8
+        genes-per-generation 18]
+    (loop [generations 10
            state [[(vec3 0 0 0)] [(vec3 0 0 0)] (gm/gmesh)]]
       (if (zero? generations)
         (last state)
         (recur (dec generations)
-               (->> (repeatedly generation-size
-                                #(repeatedly genes-per-generation random-gene))
-                    (map (fn [ops]
-                           (execute-ops state ops
-                                        #(m/radians (rand-nth [0 90 180 270]))
-                                        #(m/random 4 8))))
-                    (map #(vector (diff (last %) (last state)) %))
-                    (apply max-key first)
+               (->> (repeatedly generation-size #(repeatedly genes-per-generation random-gene))
+                    (map (fn [ops] (execute-ops state ops #(m/radians 90) #(identity 4))))
+                    (map (fn [kid] (vector (mesh-distance (g/vertices (last kid))
+                                                         (g/vertices (last state)))
+                                          kid)))
+                    (apply min-key first)
                     second))))))
+
+
+;; (defn evolve-toroid
+;;   "Use a genetic algorithm to search for toroid-like shapes."
+;;   []
+;;   (let [generation-size 10
+;;         genes-per-generation 6]
+;;     (loop [generations 20
+;;            state [[(vec3 0 0 0)] [(vec3 0 0 0)] (gm/gmesh)]]
+;;       (.log js/console (pr-str (mesh-distance toroid (g/vertices (last state)))))
+;;       (if (or (zero? generations))
+;;         (last state)
+;;         (recur (dec generations)
+;;                (->> (repeatedly generation-size #(repeatedly genes-per-generation random-gene))
+;;                     (map (fn [ops] (execute-ops state ops #(m/radians 15) #(identity 4))))
+;;                     (map #(vector (mesh-distance toroid (g/vertices (last %))) %))
+;;                     (apply min-key first)
+;;                     second))))))

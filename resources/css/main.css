@@ -52,7 +52,6 @@ body {
     transition: color background-color 0.2s linear;
     color: #181818;
     background-color: white;
-    /* background-color: rgb(16,157,76); */
 }
 
 #main {
@@ -64,7 +63,7 @@ body {
     height: 100%;
 }
 
-#spinner {
+#status {
     position: absolute;
     top: 35%;
     left: 45%;
