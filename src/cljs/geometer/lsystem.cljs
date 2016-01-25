@@ -1,13 +1,13 @@
 (ns geometer.lsystem
   (:require [thi.ng.geom.core        :as g]
-            [thi.ng.geom.core.vector :as v :refer [vec2 vec3]]
+            [thi.ng.geom.core.vector :refer [vec3]]
             [thi.ng.geom.cuboid      :refer [cuboid]]
             [thi.ng.geom.gmesh       :as gm]
             [thi.ng.geom.types.utils :as tu]
             [thi.ng.math.core        :as m]))
 
 (defn grow-cuboid
-  "Add a cuboid branch to `mesh` from `position` with `rotation` for `length`. (Produces somewhat organic-looking segments)."
+  "Add a cuboid branch of `length` to `mesh` from `position` with `rotation`. (Produces somewhat organic-looking segments)."
   [length mesh position rotation]
   (let [[x y z] (last rotation)
         corners (map #(-> % (g/rotate-x x) (g/rotate-y y) (g/rotate-z z) (g/+ (last position)))
@@ -18,7 +18,7 @@
      (tu/into-mesh mesh gm/add-face (apply cuboid corners))]))
 
 (defn- execute-op
-  "Execute a single L-System operation and return the new state of the system."
+  "Execute a single L-System operation and return the new state of the system. The `angle-fn` is used to determine angle changes and the `grow-fn` to extend a branch."
   [angle-fn grow-fn [pos rot mesh] op]
   (case op
     \F (grow-fn mesh pos rot)
@@ -31,13 +31,13 @@
     \/ [pos (conj (pop rot) (g/+ (last rot) (vec3 0 0 (- (angle-fn))))) mesh]
     \| [pos (conj (pop rot) (g/+ (last rot) (vec3 0 (m/radians 180) 0))) mesh]
     \[ [(conj pos (last pos)) (conj rot (last rot)) mesh]
-    \] (if (or (= 1 (count pos)) (= 1 (count rot))) ;; guard against popping empties
+    \] (if (or (= 1 (count pos)) (= 1 (count rot))) ; guard against popping empties
          [pos rot mesh]
          [(pop pos) (pop rot) mesh]) 
-    [pos rot mesh])) ;; default to no-op
+    [pos rot mesh]))                                ; default to no-op
 
 (defn execute-ops
-  "Execute a sequence of L-System operations and return the new state of the system."
+  "Execute a sequence of L-System `ops` starting from `state` parameterized by `angle-fn` and `grow-fn`, returns the resulting state."
   [angle-fn grow-fn state ops]
   (reduce #(execute-op angle-fn grow-fn %1 %2) state ops))
 

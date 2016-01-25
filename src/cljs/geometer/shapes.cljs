@@ -13,7 +13,7 @@
 (defn disc
   "Return the vertices with which to draw a tesselated disc."
   []
-  (-> (circle 16)    ;; a 2D circle
+  (-> (circle 16)    ;; a 2D circle of 16 units
       (g/extrude {}) ;; extruded into a 3D disc
       (g/as-mesh)))  ;; as a mesh
 

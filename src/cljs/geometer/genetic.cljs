@@ -18,7 +18,7 @@
   (apply + (map #(apply min (map (partial g/dist %) old)) new)))
 
 (defn novelty-search
-  "Use novelty search to produce the most 'interesting' mesh possible given these constraints."
+  "Use a novelty search genetic algorithm to produce the most 'interesting' mesh possible given these constraints."
   []
   (let [generation-size 8
         genes-per-generation 18]
@@ -35,7 +35,9 @@
                     (apply min-key first)
                     second))))))
 
-
+;;
+;; TODO
+;;
 ;; (defn evolve-toroid
 ;;   "Use a genetic algorithm to search for toroid-like shapes."
 ;;   []
