@@ -1,4 +1,4 @@
-[[https://raw.githubusercontent.com/jackrusher/geometer/master/resources/images/geometer.png|alt=splash]]
+![splash](https://raw.githubusercontent.com/jackrusher/geometer/master/resources/images/geometer.png)
 
 # Geometer
 
