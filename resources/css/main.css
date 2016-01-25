@@ -17,7 +17,7 @@ body {
     -webkit-font-smoothing: antialiased;
     font-family: 'Lekton', sans-serif;
 }
-        
+
 #controls {
     position: absolute;
     top: 1em;
@@ -51,6 +51,20 @@ body {
     transition: color background-color 0.2s linear;
     color: #181818;
     background-color: white;
+}
+
+#github-logo {
+    /* display: block; */
+    margin-left: 0.25em;
+    width: 3em;
+}
+#github-logo path {
+    transition: stroke 0.2s linear;
+    stroke: #999;
+}
+#github-logo:hover path {
+    transition: stroke 0.2s linear;
+    stroke: #fff;
 }
 
 #main {
