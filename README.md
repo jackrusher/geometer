@@ -1,3 +1,5 @@
+[[https://raw.githubusercontent.com/jackrusher/geometer/master/resources/images/geometer.png|alt=splash]]
+
 # Geometer
 
 In my continuing effort to get the [Clojure](http://clojure.org)
