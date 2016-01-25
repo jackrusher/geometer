@@ -1,10 +1,12 @@
-# geometer
+# Geometer
 
 In my continuing effort to get the [Clojure](http://clojure.org)
 community to notice [Karsten Schmidt](http://postspectacular.com), and
 the creative coding community to notice Clojure, I've created this
 little interactive playground for experiments with Karsten's
 [th.ing](https://github.com/thi-ng) libraries.
+
+## Getting Started
 
 After checking out the repo (and assuming
 [boot](https://github.com/boot-clj/boot) is installed):
@@ -26,3 +28,9 @@ After checking out the repo (and assuming
 N.B. Saving any `cljs` file will trigger recompilation of the entire file
 and an automatic reload of the namespace. The current model and view
 rotation are defined using `defonce` to avoid jankiness.
+
+## The Code
+
+There are examples of creating meshes from primitive shapes, including
+extruding 3D meshes from 2D primitives, and implementations for a
+couple of simple generative techniques. More will follow.
