@@ -4,17 +4,13 @@
             [thi.ng.geom.core.vector :refer [vec3]]
             [thi.ng.geom.gmesh       :as gm]
             [thi.ng.math.core        :as m]
-            [geometer.lsystem        :refer [grow execute-ops build-lsystem]]
+            [geometer.lsystem        :refer [grow-cuboid execute-ops build-lsystem]]
             [clojure.data            :refer [diff]]))
 
 (defn random-gene
   "A function to return a random operation to produce variation in each generation. Repeating an operation in the vector of ops increases its likelihood."
   []
   (rand-nth [\F \F \F \C \+ \- \& \^ \\ \/ \| \[ \]]))
-
-(def toroid
-  (-> (build-lsystem (take 48 (cycle [\F \+])) #(m/radians 15) #(identity 4))
-      (g/vertices)))
 
 (defn mesh-distance
   "An extremely primitive function to calculate the difference between mesh vertices `old` and `new`. Used as a fitness function for a genetic algorithm that follows."
@@ -32,7 +28,7 @@
         (last state)
         (recur (dec generations)
                (->> (repeatedly generation-size #(repeatedly genes-per-generation random-gene))
-                    (map (fn [ops] (execute-ops state ops #(m/radians 90) #(identity 4))))
+                    (map (partial execute-ops #(m/radians 90) (partial grow-cuboid 4) state))
                     (map (fn [kid] (vector (mesh-distance (g/vertices (last kid))
                                                          (g/vertices (last state)))
                                           kid)))
