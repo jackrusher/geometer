@@ -8,8 +8,11 @@
             [thi.ng.geom.webgl.buffers       :as buf]
             [thi.ng.geom.webgl.shaders       :as sh]
             [thi.ng.geom.webgl.shaders.basic :as basic]
+            [thi.ng.geom.webgl.shaders.phong :as phong]
             [thi.ng.math.core                :as m]
             [thi.ng.typedarrays.core         :refer [float32]]
+            [thi.ng.geom.polygon :as poly]
+            [thi.ng.geom.basicmesh :refer [basic-mesh]]
             [geometer.shapes  :as shapes]
             [geometer.lsystem :as lsystem]
             [geometer.genetic :as genetic]))
@@ -28,31 +31,52 @@
 
 (defonce viewpoint (atom (g/translate M44 0 0 -70)))
 
-(defn- vary-color
-  "Add random variance to an (r,g,b,a) sequence of colors values."
-  [cols]
-  (map #(+ (m/random -0.1 0.1) %) cols))
+;; (defn- vary-color
+;;   "Add random variance to an (r,g,b,a) sequence of colors values."
+;;   [cols]
+;;   (map #(+ (m/random -0.1 0.1) %) cols))
+
+;; (defn- set-model!
+;;   "Our model is a `mesh` that will be rendered by the animation loop started in the start function."
+;;   [mesh]
+;;   (reset! model
+;;           (let [vertices (->> (g/center mesh)
+;;                               (g/faces)
+;;                               (map gu/tessellate-3)
+;;                               flatten)
+;;                 colors (flatten (repeatedly (/ (count vertices) 3)
+;;                                             #(vary-color [0.064 0.63 0.30 0.9])))
+;;                 gl (gl/gl-context "main")]
+;;             (-> {:attribs {:position {:data (float32 vertices) :size 3}
+;;                            :color    {:data (float32 colors) :size 4}}
+;;                  :uniforms     {:proj (gl/perspective 45 view-rect 0.1 1200.0)
+;;                                 :view (mat/look-at (v/vec3 0 0 0) (v/vec3) v/V3Y)}
+;;                  :mode         gl/triangles
+;;                  :num-vertices (/ (count vertices) 3)
+;;                  :shader       (->> (basic/make-shader-spec-3d true)
+;;                                     (sh/make-shader-from-spec gl))}
+;;                 (buf/make-attribute-buffers-in-spec gl gl/static-draw)))))
 
 (defn- set-model!
   "Our model is a `mesh` that will be rendered by the animation loop started in the start function."
   [mesh]
   (reset! model
-          (let [vertices (->> (g/center mesh)
-                              (g/faces)
-                              (map gu/tessellate-3)
-                              flatten)
-                colors (flatten (repeatedly (/ (count vertices) 3)
-                                            #(vary-color [0.064 0.63 0.30 0.9])))
-                gl (gl/gl-context "main")]
-            (-> {:attribs {:position {:data (float32 vertices) :size 3}
-                           :color    {:data (float32 colors) :size 4}}
-                 :uniforms     {:proj (gl/perspective 45 view-rect 0.1 1200.0)
-                                :view (mat/look-at (v/vec3 0 0 0) (v/vec3) v/V3Y)}
-                 :mode         gl/triangles
-                 :num-vertices (/ (count vertices) 3)
-                 :shader       (->> (basic/make-shader-spec-3d true)
-                                    (sh/make-shader-from-spec gl))}
-                (buf/make-attribute-buffers-in-spec gl gl/static-draw)))))
+          (-> (g/center mesh)
+              (gl/as-webgl-buffer-spec {})
+              (buf/make-attribute-buffers-in-spec gl gl/static-draw)
+              (assoc :shader (sh/make-shader-from-spec gl phong/shader-spec))
+              (update-in [:uniforms] merge
+                         {:proj          (gl/perspective 45 view-rect 0.1 100.0)
+                          :lightPos      (vec3 2 0 5)
+                          :ambientCol    0x181818
+                          :diffuseCol    0x10a04c
+                          :specularCol   0x888888
+                          :shininess     100
+                          :wrap          5
+                          :useBlinnPhong true}))))
+
+;; (apply str (map #(format "%x" (int (* 255 %))) [0.064 0.63 0.30]))
+;; "10a04c"
 
 (defn ^:export new-model
   "Selects a new model from a set of possibilities (or a cube if we don't recognise the request). This requires some setTimeout silliness for the browser to show a status panel."
@@ -80,17 +104,18 @@
       115 (reset! viewpoint (g/translate @viewpoint 0 0 -2)) ;; s = backward
       (print k))))
 
-(defn- mouse-handler [e]
+(defn- update-pos [e]
   (reset! mouse-x (* 0.01 (- (.-clientX e) (/ (.-innerWidth js/window) 2))))
   (reset! mouse-y (* 0.01 (- (.-clientY e) (/ (.-innerHeight js/window) 2)))))
 
 (defn ^:export start
   "This function is called when 'index.html' loads. We use it to kick off mouse tracking, a keyboard handler and the animation loop."
   []
-  (.addEventListener js/document "mousemove" mouse-handler)
   (.addEventListener js/document "keypress" keypress-handler)
-
-  ;;(.addEventListener js/window "touchmove" #(do (.preventDefault %) (update-pos (aget (.-touches %) 0))))
+  (.addEventListener js/document "mousemove" update-pos)
+  (.addEventListener js/window "touchmove"
+                     #(do (.preventDefault %)
+                          (update-pos (aget (.-touches %) 0))))
   
   ;; initialize with a cube
   (set-model! (shapes/cube))
@@ -99,10 +124,20 @@
    (fn [[t frame]]
      (gl/set-viewport gl view-rect)
      (gl/clear-color-buffer gl 0 0 0 0) ;; 0 opacity, so we see the bg gradient
+     (gl/clear-depth-buffer gl 1)
      (gl/enable gl gl/depth-test)
-     (buf/draw-arrays-with-shader gl (assoc-in @model [:uniforms :model]
-                                               (-> @viewpoint
-                                                   (g/translate 0 0 0)
-                                                   (g/rotate-x @mouse-y)
-                                                   (g/rotate-y @mouse-x))))
+     ;; (phong/draw
+     ;;  gl (-> model
+     ;;         (assoc-in [:uniforms :model] tx2)
+     ;;         (assoc-in [:uniforms :diffuseCol] 0x33ff80)))
+     (let [m (assoc-in
+              @model [:uniforms :view]
+              (mat/look-at (vec3 0 0 2) (vec3) (vec3 0 1 0)))]
+       (phong/draw gl (assoc-in m
+                                [:uniforms :model]
+                                (-> @viewpoint
+                                    (g/translate 0 0 0)
+                                    (g/rotate-x @mouse-y)
+                                    (g/rotate-y @mouse-x)))))
+     
      true)))
