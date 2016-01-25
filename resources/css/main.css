@@ -29,9 +29,11 @@ body {
     border-radius: 10px;
     opacity: 0.6;
     color: white;
+    text-align: center;
 }
 
 #controls dt {
+    margin-left:0;
     margin-top: 1em;
     font-weight: bold;
 }
@@ -54,9 +56,9 @@ body {
 }
 
 #github-logo {
-    /* display: block; */
-    margin-left: 0.25em;
-    width: 3em;
+    display: block;
+    margin: auto;
+    width: 2.5em;
 }
 #github-logo path {
     transition: stroke 0.2s linear;

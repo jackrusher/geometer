@@ -1,8 +1,13 @@
 # geometer
 
-An interactive playground for experiments with th.ing's geom libraries.
+In my continuing effort to get the [Clojure](http://clojure.org)
+community to notice [Karsten Schmidt](http://postspectacular.com), and
+the creative coding community to notice Clojure, I've created this
+little interactive playground for experiments with Karsten's
+[th.ing](https://github.com/thi-ng) libraries.
 
-After checking out the repo (and assuming [boot](https://github.com/boot-clj/boot) is installed):
+After checking out the repo (and assuming
+[boot](https://github.com/boot-clj/boot) is installed):
 
 1. Start the `boot` development server: `$ boot dev`
 
@@ -16,9 +21,8 @@ After checking out the repo (and assuming [boot](https://github.com/boot-clj/boo
 
 5. If you're using `emacs`, `cider-eval-buffer`.
 
-6. Begin evaluating forms, perhaps tinkering with the model definition
-   in `app.cljs` to change the shape/colors projected on the WebGL
-   canvas.
+6. Begin evaluating forms.
 
-N.B. Saving `app.cljs` will trigger recompilation of the entire file
-and an automatic reload of the namespace.
+N.B. Saving any `cljs` file will trigger recompilation of the entire file
+and an automatic reload of the namespace. The current model and view
+rotation are defined using `defonce` to avoid jankiness.
