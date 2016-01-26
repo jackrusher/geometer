@@ -1,11 +1,8 @@
 (ns geometer.genetic
-  (:require [thi.ng.geom.core        :as g]
-            [thi.ng.geom.core.utils  :as gu]
-            [thi.ng.geom.core.matrix :refer [M44]]
-            [thi.ng.geom.basicmesh   :as bm]
-            [thi.ng.math.core        :as m]
-            [geometer.lsystem        :refer [grow-cuboid execute-ops build-lsystem]]
-            [clojure.data            :refer [diff]]))
+  (:require [thi.ng.geom.core :as g]
+            [thi.ng.math.core :as m]
+            [geometer.lsystem :as ls]
+            [clojure.data     :refer [diff]]))
 
 (defn random-gene
   "A function to return a random operation to produce variation in each generation. Repeating an operation in the vector of ops increases its likelihood."
@@ -23,14 +20,14 @@
   (let [generation-size 8
         genes-per-generation 18]
     (loop [generations 10
-           state [[M44] (bm/basic-mesh)]]
+           state ls/initial-state]
       (if (zero? generations)
         (last state)
         (recur (dec generations)
                (->> (repeatedly generation-size #(repeatedly genes-per-generation random-gene))
-                    (map (partial execute-ops
+                    (map (partial ls/execute-ops
                                   (constantly (m/radians 90))
-                                  (partial grow-cuboid 4)
+                                  (partial ls/grow-cuboid 4)
                                   state))
                     (map (fn [kid] (vector (mesh-distance (g/vertices (last kid))
                                                          (g/vertices (last state)))
