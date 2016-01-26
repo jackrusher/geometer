@@ -37,32 +37,6 @@
 
 (defonce shader (sh/make-shader-from-spec gl phong/shader-spec))
 
-;; (defn- vary-color
-;;   "Add random variance to an (r,g,b,a) sequence of colors values."
-;;   [cols]
-;;   (map #(+ (m/random -0.1 0.1) %) cols))
-
-;; (defn- set-model!
-;;   "Our model is a `mesh` that will be rendered by the animation loop started in the start function."
-;;   [mesh]
-;;   (reset! model
-;;           (let [vertices (->> (g/center mesh)
-;;                               (g/faces)
-;;                               (map gu/tessellate-3)
-;;                               flatten)
-;;                 colors (flatten (repeatedly (/ (count vertices) 3)
-;;                                             #(vary-color [0.064 0.63 0.30 0.9])))
-;;                 gl (gl/gl-context "main")]
-;;             (-> {:attribs {:position {:data (float32 vertices) :size 3}
-;;                            :color    {:data (float32 colors) :size 4}}
-;;                  :uniforms     {:proj (gl/perspective 45 @view-rect 0.1 1200.0)
-;;                                 :view (mat/look-at (v/vec3 0 0 0) (v/vec3) v/V3Y)}
-;;                  :mode         gl/triangles
-;;                  :num-vertices (/ (count vertices) 3)
-;;                  :shader       (->> (basic/make-shader-spec-3d true)
-;;                                     (sh/make-shader-from-spec gl))}
-;;                 (buf/make-attribute-buffers-in-spec gl gl/static-draw)))))
-
 (defn- set-model!
   "Our model is a `mesh` that will be rendered by the animation loop started in the start function."
   [mesh]
@@ -80,11 +54,6 @@
                           :shininess     100
                           :wrap          1
                           :useBlinnPhong true}))))
-
-;; BTW: Jack, colors can be specified as normalized RGB color vectors too
-;; no need to convert to hex ints...
-;; (apply str (map #(format "%x" (int (* 255 %))) [0.064 0.63 0.30]))
-;; "10a04c"
 
 (defn ^:export new-model
   "Selects a new model from a set of possibilities (or a cube if we don't recognise the request). This requires some setTimeout silliness for the browser to show a status panel."
