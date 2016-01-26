@@ -19,6 +19,9 @@
         <dd onclick="geometer.app.new_model('toroid');">toroid</dd>
         <dt>Genetic</dt>
         <dd onclick="geometer.app.new_model('novelty');">novelty</dd>
+        <dt>Mode</dt>
+        <dd onclick="geometer.app.set_render_mode('normal');">normal</dd>
+        <dd onclick="geometer.app.set_render_mode('stereo');">stereo</dd>
       </dl>
       <a href="https://github.com/jackrusher/geometer">
         <svg id="github-logo" viewbox="-1 -1 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -26,6 +29,7 @@
         </svg>
       </a>
     </div>
+    <div id="hud"></div>
     <div id="status" class="invisible"></div>
     <canvas id="main"/>
     <script type="text/javascript" src="js/app.js"></script>

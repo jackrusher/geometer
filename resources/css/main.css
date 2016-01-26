@@ -98,3 +98,11 @@ body {
 .visible {
     display: block;
 }
+
+#hud {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    text-align: right;
+    color: white;
+}

@@ -8,6 +8,23 @@ the creative coding community to notice Clojure, I've created this
 little interactive playground for experiments with Karsten's
 [th.ing](https://github.com/thi-ng) libraries.
 
+## Usage
+
+* Select model to generate from pallette
+* Switch between normal & stereo rendering modes
+
+### Keyboard shortcuts
+
+* `w` / `s` - zoom in/out
+* `[` / `]` - adjust eye separation for stereo rendering mode (see HUD
+  in top-right corner)
+
+Since it's hard to determine the correct eye separation without a VR
+device, with my cross-eyed experiments, I believe the sweetspot is at
+~ -0.31. It's best to use a simple object (e.g. cube) and also
+somewhat zoom out. Once you see in stereo, then switch to more
+exciting objects (e.g. algae)...
+
 ## Getting Started
 
 After checking out the repo (and assuming
