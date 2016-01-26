@@ -1,8 +1,8 @@
 (ns geometer.genetic
   (:require [thi.ng.geom.core        :as g]
             [thi.ng.geom.core.utils  :as gu]
-            [thi.ng.geom.core.vector :refer [vec3]]
-            [thi.ng.geom.gmesh       :as gm]
+            [thi.ng.geom.core.matrix :refer [M44]]
+            [thi.ng.geom.basicmesh   :as bm]
             [thi.ng.math.core        :as m]
             [geometer.lsystem        :refer [grow-cuboid execute-ops build-lsystem]]
             [clojure.data            :refer [diff]]))
@@ -23,12 +23,15 @@
   (let [generation-size 8
         genes-per-generation 18]
     (loop [generations 10
-           state [[(vec3 0 0 0)] [(vec3 0 0 0)] (gm/gmesh)]]
+           state [[M44] (bm/basic-mesh)]]
       (if (zero? generations)
         (last state)
         (recur (dec generations)
                (->> (repeatedly generation-size #(repeatedly genes-per-generation random-gene))
-                    (map (partial execute-ops #(m/radians 90) (partial grow-cuboid 4) state))
+                    (map (partial execute-ops
+                                  (constantly (m/radians 90))
+                                  (partial grow-cuboid 4)
+                                  state))
                     (map (fn [kid] (vector (mesh-distance (g/vertices (last kid))
                                                          (g/vertices (last state)))
                                           kid)))
