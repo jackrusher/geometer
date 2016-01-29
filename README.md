@@ -6,7 +6,8 @@ In my continuing effort to get the [Clojure](http://clojure.org)
 community to notice [Karsten Schmidt](http://postspectacular.com), and
 the creative coding community to notice Clojure, I've created this
 little interactive playground for experiments with Karsten's
-[th.ing](https://github.com/thi-ng) libraries.
+[th.ing](https://github.com/thi-ng) libraries. A live version is
+hosted [here](http://proscenium.rusher.com/geometer/).
 
 ## Usage
 
