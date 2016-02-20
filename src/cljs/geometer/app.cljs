@@ -15,6 +15,7 @@
             [thi.ng.geom.polygon :as poly]
             [thi.ng.geom.basicmesh :refer [basic-mesh]]
             [geometer.shapes  :as shapes]
+            [geometer.turtle  :as turtle]
             [geometer.lsystem :as lsystem]
             [geometer.genetic :as genetic]))
 
@@ -64,9 +65,10 @@
     (js/setTimeout
      #(do
         (case kind
-          "algae"   (set-model! (lsystem/algae))
           "koch"    (set-model! (lsystem/koch))
-          "toroid"  (set-model! (lsystem/toroid))
+          "hoops"   (set-model! (turtle/hoops))
+          "hexen"   (set-model! (turtle/hexen))
+          "plant"   (set-model! (turtle/plant))
           "novelty" (set-model! (genetic/novelty-search))
           "disc"    (set-model! (shapes/disc))
           "sphere"  (set-model! (shapes/sphere))
