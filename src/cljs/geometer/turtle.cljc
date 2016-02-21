@@ -90,19 +90,18 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; some examples
-;; XXX move to another file later
+;; TODO move to another file later
 
 (defn hoops
   "Generates a group of four toroids in a mesh using 3D turtle graphics primitives."
   []
   (turtle-mesh [(length 3)
                 (angle 15)
-                (take 48 (cycle [line rx-]))
-                (take 48 (cycle [line rx]))
-                (take 48 (cycle [line ry]))
-                (take 48 (cycle [line ry-]))]))
+                (map #(take 48 (cycle [line %])) [rx- rx ry ry-])]))
 
-(defn hexen []
+(defn hexen
+  "A structure made of nesting hexagons."
+  []
   (turtle-mesh
    (map (fn [a turn-out turn len]
           (concat
@@ -113,11 +112,13 @@
         (cycle [ry- ry rx rx-])
         [6 6 6 6 9 9 9 9])))
 
-(defn branch [level]
+(defn branch
+  "A recursive branching tree structure with half-cylinder flowers."
+  [level]
   (if (= 0 level)
     [(length 1.5) cylinder]
     [(angle #(m/random 3 5)) ry-
-     (length #(* (m/random 0.5 1.5) (or (:last-length %) 2)))
+     (length #(* (m/random 0.75 1.5) (or (:last-length %) 1.5)))
      (map (fn [[a b]] (concat (take 8 (cycle [a b])) (branch (dec level))))     
           [[ry line] [ry- line] [rx line] [rx- line]])]))
 
