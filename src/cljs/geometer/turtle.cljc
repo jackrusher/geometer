@@ -102,17 +102,6 @@
                 (take 48 (cycle [line ry]))
                 (take 48 (cycle [line ry-]))]))
 
-(defn branch [level]
-  (if (= 0 level)
-    [(length 1.5) cylinder]
-    [(angle #(m/random 3 5)) ry-
-     (length #(* (m/random 0.5 1.5) (or (:last-length %) 2)))
-     (map (fn [[a b]] (concat (take 8 (cycle [a b])) (branch (dec level))))     
-          [[ry line] [ry- line] [rx line] [rx- line]])]))
-
-(defn plant []
-  (turtle-mesh (branch 2)))
-
 (defn hexen []
   (turtle-mesh
    (map (fn [a turn-out turn len]
@@ -123,3 +112,14 @@
         (cycle [rx- rx ry- ry])
         (cycle [ry- ry rx rx-])
         [6 6 6 6 9 9 9 9])))
+
+(defn branch [level]
+  (if (= 0 level)
+    [(length 1.5) cylinder]
+    [(angle #(m/random 3 5)) ry-
+     (length #(* (m/random 0.5 1.5) (or (:last-length %) 2)))
+     (map (fn [[a b]] (concat (take 8 (cycle [a b])) (branch (dec level))))     
+          [[ry line] [ry- line] [rx line] [rx- line]])]))
+
+(defn plant []
+  (turtle-mesh (branch 2)))
