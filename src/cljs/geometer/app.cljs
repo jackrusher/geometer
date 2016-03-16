@@ -12,12 +12,12 @@
             [thi.ng.geom.webgl.shaders.phong :as phong]
             [thi.ng.math.core                :as m]
             [thi.ng.typedarrays.core         :refer [float32]]
-            [thi.ng.geom.polygon :as poly]
-            [thi.ng.geom.basicmesh :refer [basic-mesh]]
-            [geometer.shapes  :as shapes]
-            [geometer.turtle  :as turtle]
-            [geometer.lsystem :as lsystem]
-            [geometer.genetic :as genetic]))
+            [thi.ng.geom.polygon             :as poly]
+            [thi.ng.geom.basicmesh           :refer [basic-mesh]]
+            [geometer.shapes                 :as shapes]
+            [geometer.turtle                 :as turtle]
+            [geometer.lsystem                :as lsystem]
+            [geometer.csg                    :as csg]))
 
 (enable-console-print!)
 
@@ -69,7 +69,8 @@
           "hoops"   (set-model! (turtle/hoops))
           "hexen"   (set-model! (turtle/hexen))
           "plant"   (set-model! (turtle/plant))
-          "novelty" (set-model! (genetic/novelty-search))
+          "starfighter" (set-model! (csg/starfighter))
+;;          "novelty" (set-model! (genetic/novelty-search))
           "disc"    (set-model! (shapes/disc))
           "sphere"  (set-model! (shapes/sphere))
           (set-model! (shapes/cube)))
