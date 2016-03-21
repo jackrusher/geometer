@@ -130,8 +130,8 @@
     (gl/set-viewport gl view)
 
     ;; XXX scissor test currently throws a pile of webgl "bad constant" errors
-    ;;    (gl/enable gl gl/scissor-test)
-    ;;    (.scissor gl x y w h) ;; TODO add wrapper in geom.webgl.core
+    (gl/enable gl glc/scissor-test)
+    (gl/scissor-test gl x y w h)
     (gl/clear-color-buffer gl 0 0 0 0) ;; 0 opacity, so we see the bg gradient
     (gl/clear-depth-buffer gl 1)
     (gl/enable gl glc/depth-test)
@@ -139,8 +139,7 @@
                 (update model :uniforms merge
                         {:proj  (@projection id)
                          :view  (mat/look-at (vec3 eye-sep 0 2) (vec3) (vec3 0 1 0))}))
-    ;;    (gl/disable gl gl/scissor-test)
-    ))
+    (gl/disable gl glc/scissor-test)))
 
 (defn ^:export start
   "This function is called when 'index.html' loads. We use it to kick off mouse tracking, a keyboard handler and the animation loop."
