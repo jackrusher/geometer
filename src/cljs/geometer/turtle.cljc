@@ -1,12 +1,12 @@
 (ns geometer.turtle
-  (:require [thi.ng.geom.core        :as g]
-            [thi.ng.geom.core.vector :refer [vec3]]
-            [thi.ng.geom.core.matrix :refer [M44]]
-            [thi.ng.geom.aabb        :refer [aabb]]
-            [thi.ng.geom.basicmesh   :as bm]
-            [thi.ng.geom.circle      :refer [circle]]
-            [thi.ng.geom.sphere      :refer [sphere]]
-            [thi.ng.math.core        :as m])
+  (:require [thi.ng.geom.core      :as g]
+            [thi.ng.geom.aabb      :refer [aabb]]
+            [thi.ng.geom.basicmesh :as bm]
+            [thi.ng.geom.circle    :refer [circle]]
+            [thi.ng.geom.matrix    :refer [M44]]
+            [thi.ng.geom.sphere    :refer [sphere]]
+            [thi.ng.geom.vector    :refer [vec3]]
+            [thi.ng.math.core      :as m])
   #?(:clj (:require [geometer.macros :refer [defmove defrot defshape]]))
   #?(:cljs (:require-macros [geometer.macros :refer [defmove defrot defshape]])))
 
@@ -90,7 +90,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; some examples
-;; TODO move to another file later
+;; TODO move examples to another file later
 
 (defn hoops
   "Generates a group of four toroids in a mesh using 3D turtle graphics primitives."
@@ -112,15 +112,17 @@
         (cycle [ry- ry rx rx-])
         [6 6 6 6 9 9 9 9])))
 
+;; TODO add color to the "flower" ends
+;; BUG very slow with latest geom, can no longer go more than one deep
 (defn branch
   "A recursive branching tree structure with half-cylinder flowers."
   [level]
-  (if (= 0 level)
-    [(length 1.5) cylinder]
+  (if (>= 0 level)
+    [(length 1) cylinder]
     [(angle #(m/random 3 5)) ry-
-     (length #(* (m/random 0.75 1.5) (or (:last-length %) 1.5)))
+     (length #(* (or (:last-length %) 2.5) (m/random 0.75 1.5)))
      (map (fn [[a b]] (concat (take 8 (cycle [a b])) (branch (dec level))))     
           [[ry line] [ry- line] [rx line] [rx- line]])]))
 
 (defn plant []
-  (turtle-mesh (branch 2)))
+  (turtle-mesh (branch 1)))

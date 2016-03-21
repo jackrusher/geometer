@@ -1,9 +1,9 @@
 (ns geometer.macros
-  (:require [thi.ng.geom.core :as g]
-            [thi.ng.math.core :as m]
-            [thi.ng.geom.core.vector :refer [vec3]]
-            [thi.ng.geom.core.matrix :refer [M44]]
-            [thi.ng.geom.aabb        :refer [aabb]]))
+  (:require [thi.ng.geom.aabb   :refer [aabb]]
+            [thi.ng.geom.core   :as g]
+            [thi.ng.geom.matrix :refer [M44]]
+            [thi.ng.geom.vector :refer [vec3]]
+            [thi.ng.math.core   :as m]))
 
 (defmacro defmove
   "Creates a new movement operation called `op` that handles bookkeeping for :last-length and provides `length` to the lexical environment of the code passed in, which should be three expressions for the change in `x`, `y` and `z`."

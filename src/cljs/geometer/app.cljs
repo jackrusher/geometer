@@ -1,23 +1,20 @@
 (ns geometer.app
   (:require [thi.ng.geom.core                :as g]
-            [thi.ng.geom.core.vector         :as v :refer [vec2 vec3]]
-            [thi.ng.geom.core.matrix         :as mat :refer [M44]]
-            [thi.ng.geom.core.utils          :as gu]
+            [thi.ng.geom.vector              :as v :refer [vec2 vec3]]
+            [thi.ng.geom.matrix              :as mat :refer [M44]]
+            [thi.ng.geom.utils               :as gu]
             [thi.ng.geom.rect                :refer [rect]]
             [thi.ng.geom.webgl.core          :as gl]
             [thi.ng.geom.webgl.animator      :refer [animate]]
-            [thi.ng.geom.webgl.buffers       :as buf]
+            [thi.ng.geom.webgl.constants     :as glc]
             [thi.ng.geom.webgl.shaders       :as sh]
-            [thi.ng.geom.webgl.shaders.basic :as basic]
             [thi.ng.geom.webgl.shaders.phong :as phong]
             [thi.ng.math.core                :as m]
             [thi.ng.typedarrays.core         :refer [float32]]
-            [thi.ng.geom.polygon             :as poly]
-            [thi.ng.geom.basicmesh           :refer [basic-mesh]]
-            [geometer.shapes                 :as shapes]
-            [geometer.turtle                 :as turtle]
+            [geometer.csg                    :as csg]
             [geometer.lsystem                :as lsystem]
-            [geometer.csg                    :as csg]))
+            [geometer.shapes                 :as shapes]
+            [geometer.turtle                 :as turtle]))
 
 (enable-console-print!)
 
@@ -36,16 +33,13 @@
 (defonce eye-separation (atom 0))
 (defonce render-mode (atom :normal))
 
-(defonce shader (sh/make-shader-from-spec gl phong/shader-spec))
-
 (defn- set-model!
   "Our model is a `mesh` that will be rendered by the animation loop started in the start function."
   [mesh]
   (reset! model
           (-> (g/center mesh)
               (gl/as-webgl-buffer-spec {})
-              (buf/make-attribute-buffers-in-spec gl gl/static-draw)
-              (assoc :shader shader)
+              (assoc :shader (sh/make-shader-from-spec gl phong/shader-spec))
               (update-in [:uniforms] merge
                          {:proj          @projection
                           :lightPos      (vec3 2 0 5)
@@ -54,7 +48,8 @@
                           :specularCol   0xaaaaaa
                           :shininess     100
                           :wrap          1
-                          :useBlinnPhong true}))))
+                          :useBlinnPhong true})
+              (gl/make-buffers-in-spec gl glc/static-draw))))
 
 (defn ^:export new-model
   "Selects a new model from a set of possibilities (or a cube if we don't recognise the request). This requires some setTimeout silliness for the browser to show a status panel."
@@ -133,16 +128,19 @@
   [model id eye-sep]
   (let [{[x y] :p [w h] :size :as view} (@view-rect id)]
     (gl/set-viewport gl view)
-    (gl/enable gl gl/scissor-test)
-    (.scissor gl x y w h) ;; TODO add wrapper in geom.webgl.core
+
+    ;; XXX scissor test currently throws a pile of webgl "bad constant" errors
+    ;;    (gl/enable gl gl/scissor-test)
+    ;;    (.scissor gl x y w h) ;; TODO add wrapper in geom.webgl.core
     (gl/clear-color-buffer gl 0 0 0 0) ;; 0 opacity, so we see the bg gradient
     (gl/clear-depth-buffer gl 1)
-    (gl/enable gl gl/depth-test)
-    (phong/draw
-     gl (update model :uniforms merge
-                {:proj  (@projection id)
-                 :view  (mat/look-at (vec3 eye-sep 0 2) (vec3) (vec3 0 1 0))}))
-    (gl/disable gl gl/scissor-test)))
+    (gl/enable gl glc/depth-test)
+    (phong/draw gl
+                (update model :uniforms merge
+                        {:proj  (@projection id)
+                         :view  (mat/look-at (vec3 eye-sep 0 2) (vec3) (vec3 0 1 0))}))
+    ;;    (gl/disable gl gl/scissor-test)
+    ))
 
 (defn ^:export start
   "This function is called when 'index.html' loads. We use it to kick off mouse tracking, a keyboard handler and the animation loop."
@@ -152,6 +150,8 @@
   (.addEventListener js/window "touchmove"
                      #(do (.preventDefault %)
                           (update-pos (aget (.-touches %) 0))))
+
+  ;; handle resize events, and set initial viewport size
   (.addEventListener js/window "resize" resize-handler)
   (resize-handler)
 
@@ -159,7 +159,7 @@
   (set-model! (shapes/cube))
 
   (animate
-   (fn [[t frame]]
+   (fn [t frame]
      (let [m (update @model :uniforms merge
                      {:model (-> @viewpoint
                                  (g/translate 0 0 0)
