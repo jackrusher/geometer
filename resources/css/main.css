@@ -28,31 +28,31 @@ body {
     -moz-border-radius: 10px;
     border-radius: 10px;
     opacity: 0.6;
-    color: white;
     text-align: center;
 }
 
-#controls dt {
+#options dt {
     margin-left:0;
     margin-top: 1em;
     font-weight: bold;
+    color: #fff;
 }
 
-#controls dd {
+#options dd {
     margin-top: 0.5em;
     margin-left: 0;
     padding: 0.25em;
     -moz-border-radius: 5px;
     border-radius: 5px;
     transition: color background-color 0.2s linear;
-    color: white;
+    color: #ccc;
     background-color: transparent;
 }
 
-#controls dd:hover {
+#options dd:hover {
     transition: color background-color 0.2s linear;
     color: #181818;
-    background-color: white;
+    background-color: #ccc;
 }
 
 #github-logo {

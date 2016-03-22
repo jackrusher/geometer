@@ -1,5 +1,6 @@
 (ns geometer.app
-  (:require [thi.ng.geom.core                :as g]
+  (:require [thi.ng.domus.core               :as dom]
+            [thi.ng.geom.core                :as g]
             [thi.ng.geom.vector              :as v :refer [vec2 vec3]]
             [thi.ng.geom.matrix              :as mat :refer [M44]]
             [thi.ng.geom.utils               :as gu]
@@ -18,8 +19,8 @@
 
 (enable-console-print!)
 
-;; we use defonce for the webgl context, mouse tracking atoms and
-;; model they won't be re-initialed when the namespace is reloaded
+;; we use defonce for the webgl context, mouse tracking atoms, etc, so
+;; they won't be re-initialed when the namespace is reloaded
 (defonce gl (gl/gl-context "main"))
 (defonce view-rect (atom nil))
 
@@ -32,6 +33,9 @@
 (defonce viewpoint (atom (g/translate M44 0 0 -70)))
 (defonce eye-separation (atom 0))
 (defonce render-mode (atom :normal))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; OPTIONS MENU + HELPERS
 
 (defn- set-model!
   "Our model is a `mesh` that will be rendered by the animation loop started in the start function."
@@ -51,38 +55,60 @@
                           :useBlinnPhong true})
               (gl/make-buffers-in-spec gl glc/static-draw))))
 
-(defn ^:export new-model
-  "Selects a new model from a set of possibilities (or a cube if we don't recognise the request). This requires some setTimeout silliness for the browser to show a status panel."
-  [kind]
-  (let [status (.getElementById js/document "status")]
-    (set! (.-innerHTML status) (str "Generating new " kind " model..."))
-    (set! (.-className status) "visible")
+(defn build-model
+  "Build and set a new model using `model-fn`."
+  [model-fn]
+  (let [status (dom/by-id "status")]
+    (dom/set-html! status (str "Generating new model..."))
+    (dom/set-class! status "visible")
     (js/setTimeout
      #(do
-        (case kind
-          "koch"    (set-model! (lsystem/koch))
-          "hoops"   (set-model! (turtle/hoops))
-          "hexen"   (set-model! (turtle/hexen))
-          "plant"   (set-model! (turtle/plant))
-          "starfighter" (set-model! (csg/starfighter))
-;;          "novelty" (set-model! (genetic/novelty-search))
-          "disc"    (set-model! (shapes/disc))
-          "sphere"  (set-model! (shapes/sphere))
-          (set-model! (shapes/cube)))
-        (set! (.-className status) "invisible"))
+        (set-model! (model-fn))
+        (dom/set-class! status "invisible"))
      20)))
 
-(defn- hud-message
+(defn hud-message
   "Display message in HUD overlay."
   [body]
-  (set! (.-innerHTML (.getElementById js/document "hud")) body))
+  (dom/set-html! (dom/by-id "hud") body))
 
-(defn ^:export set-render-mode
+(defn set-render-mode
+  "Switch between `:normal` and `:stereo` rendering."
   [id]
-  (reset! render-mode (keyword id))
+  (reset! render-mode id)
   (hud-message
    (when (= :stereo @render-mode)
      (str "eye separation: " @eye-separation))))
+
+(def options
+  (array-map
+   "Shapes"    [["cube"        #(build-model shapes/cube)]
+                ["disc"        #(build-model shapes/disc)]
+                ["sphere"      #(build-model shapes/sphere)]]
+   "CSG"       [["starfighter" #(build-model csg/starfighter)]]
+   "3D Turtle" [["hoops"       #(build-model turtle/hoops)]
+                ["hexen"       #(build-model turtle/hexen)]
+                ["plant"       #(build-model turtle/plant)]]
+   "L-Systems" [["koch"        #(build-model lsystem/koch)]]
+   "Mode"      [["normal"      #(set-render-mode :normal)]
+                ["stereo"      #(set-render-mode :stereo)]]))
+
+(def option-name-to-fn
+  (apply hash-map (flatten (vals options))))
+
+(def options-markup
+  [:dl
+   (for [[category ds] options]
+     [:dt category
+      (for [[d _] ds]
+        [:dd {:onclick (str "geometer.app.handle_option('" d "');")} d])])])
+
+(defn ^:export handle-option
+  "Dispatch a UI callback to the right option function."
+  [demo-name]
+  ((option-name-to-fn demo-name)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn- keypress-handler [e]
   (let [k (.-keyCode e)]
@@ -142,19 +168,22 @@
 (defn ^:export start
   "This function is called when 'index.html' loads. We use it to kick off mouse tracking, a keyboard handler and the animation loop."
   []
+  ;; set up the options menu
+  (dom/create-dom! options-markup (dom/by-id "options"))  
+
+  ;; event handlers
   (.addEventListener js/document "keypress" keypress-handler)
   (.addEventListener js/document "mousemove" update-pos)
   (.addEventListener js/window "touchmove"
                      #(do (.preventDefault %)
                           (update-pos (aget (.-touches %) 0))))
-
-  ;; handle resize events, and set initial viewport size
   (.addEventListener js/window "resize" resize-handler)
   (resize-handler)
 
   ;; initialize with a cube
   (set-model! (shapes/cube))
 
+  ;; the animation loop :-)
   (animate
    (fn [t frame]
      (let [m (update @model :uniforms merge
