@@ -128,8 +128,6 @@
   [model id eye-sep]
   (let [{[x y] :p [w h] :size :as view} (@view-rect id)]
     (gl/set-viewport gl view)
-
-    ;; XXX scissor test currently throws a pile of webgl "bad constant" errors
     (gl/enable gl glc/scissor-test)
     (gl/scissor-test gl x y w h)
     (gl/clear-color-buffer gl 0 0 0 0) ;; 0 opacity, so we see the bg gradient
